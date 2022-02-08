@@ -11,7 +11,7 @@
     "build": "tsc",
     "link": "npm link",
     "prepare": "husky install",
-    "cz": "git-cz",
+    "cz": "git-cz"
   },
   "keywords": [],
   "author": "",
