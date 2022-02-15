@@ -14,8 +14,8 @@
 
     /* Type Checking */
     "strict": true,                                      /* Enable all strict type-checking options. */
-
+    "allowJs": true,
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
   },
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules","dist"]
 }

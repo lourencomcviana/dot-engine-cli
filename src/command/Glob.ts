@@ -1,5 +1,6 @@
 import {promise as glob} from "glob-promise";
 import * as fs from "fs-extra";
+import {FileConfig} from "../model/Template";
 
 /***
  * get jst files
@@ -15,15 +16,30 @@ export async function findFiles(globPath: string): Promise<string[]>{
         })
 }
 
-export async function readFiles(files: string[]): Promise<string[]> {
-    const promisses = files.map(file =>
-        fs.readFile(file,'UTF-8')
-    )
+export async function readFiles(files: string[]): Promise<FileConfig.File[]> {
 
-    return Promise.all(promisses);
+    const configs = files.map(file => {
+        return createFileConfig(file)
+    }).map(async fileConfig => {
+        const content =  await fs.readFile(fileConfig.srcFile, 'UTF-8')
+        return {
+            srcFile: fileConfig.srcFile,
+            content: content
+        };
+    })
+   return Promise.all(configs);
 }
 
-export async function findAndreadFiles(globPath: string): Promise<string[]> {
+export async function findAndReadFiles(globPath: string): Promise<FileConfig.GlobFile> {
     const files = await findFiles(globPath);
-    return await readFiles(files);
+    return {
+        glob: globPath,
+        found: await readFiles(files)
+    };
+}
+
+function createFileConfig(file: string): FileConfig.Option{
+    return {
+        srcFile: file
+    }
 }
