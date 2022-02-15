@@ -38,8 +38,14 @@ export function parsedPathToString(parsedPath: ParsedPath) {
     return parsedPath.dir.startsWith(".") ? `.${path.sep}${newPath}` : newPath
 }
 
-export async function run(config: Config.Main) {
-    const templates = await readAndCompile(config.jst);
+export async function run(config: Config.Main | string) {
+    let file:string;
+    if(typeof config === 'object') {
+        file = config.jst;
+    } else {
+        file = config;
+    }
+    const templates = await readAndCompile(file);
     try {
         const toWriteItens = templates.itens.map(item => write(item))
         await Promise.all(toWriteItens)
