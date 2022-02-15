@@ -6,13 +6,15 @@ import {TemplateConfig} from "../model/Template";
 import * as path from "path";
 import {ParsedPath} from "path";
 import {Config} from "../model/ConfigFile";
+import {IOptions} from "glob";
 
 /***
  * use dotjs to generate functions
  * @param directory
+ * @param options
  */
-export async function readAndCompile(directory: string) : Promise<TemplateConfig.Templates> {
-    const filesContents = await findAndReadFiles(directory);
+export async function readAndCompile(directory: string, options:  IOptions | Config.Main) : Promise<TemplateConfig.Templates> {
+    const filesContents = await findAndReadFiles(directory, options);
     const itens = filesContents.found.map( fileContent => {
         const templateFn = compile(fileContent.content);
         return new TemplateConfig.TemplateItem(fileContent, templateFn);
@@ -34,25 +36,18 @@ export async function write(templateItem: TemplateConfig.TemplateItem) : Promise
 }
 
 export function parsedPathToString(parsedPath: ParsedPath) {
-    let newPath  =  path.join(parsedPath.root, parsedPath.dir, `${parsedPath.name}.${parsedPath.ext}`)
+    let newPath  =  path.join(parsedPath.dir, `${parsedPath.name}.${parsedPath.ext}`)
     return parsedPath.dir.startsWith(".") ? `.${path.sep}${newPath}` : newPath
 }
 
-export async function run(config: Config.Main | string) {
-    let file:string;
-    if(typeof config === 'object') {
-        file = config.jst;
-    } else {
-        file = config;
-    }
-    const templates = await readAndCompile(file);
-    try {
-        const toWriteItens = templates.itens.map(item => write(item))
-        await Promise.all(toWriteItens)
+export async function run(config: Config.Main ) {
 
-    }   catch (e) {
-        console.error(e);
-    }
+    const templates = await readAndCompile(config.jst, config);
+
+    const toWriteItens = templates.itens.map(item => write(item))
+    await Promise.all(toWriteItens)
+    return templates;
+
 }
 
 function compile(template: string): RenderFunction{

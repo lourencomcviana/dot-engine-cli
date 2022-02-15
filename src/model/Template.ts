@@ -1,7 +1,8 @@
 import {RenderFunction} from "dot";
 import * as path from "path";
-import {parsedPathToString} from "../command/DotCompiling";
-import * as fs from "fs-extra";
+import {parsedPathToString} from "../command/DotCompiling"
+import {Config} from "./ConfigFile";
+import {config} from "yargs";
 
 
 export module TemplateConfig {
@@ -15,7 +16,7 @@ export module TemplateConfig {
             const pathToFile = path.parse(file.srcFile);
             pathToFile.ext = 'js';
 
-            const data:any = file;
+            const data:any = Object.assign({}, file);
             data.destFile = parsedPathToString(pathToFile);
 
             this.file = data;
@@ -27,7 +28,6 @@ export module TemplateConfig {
             }
         }
 
-
         get File() {
             return this.file
         }
@@ -36,7 +36,7 @@ export module TemplateConfig {
             if (this.renderFunction) {
                 return this.renderFunction;
             } else {
-                const destFile = path.resolve(process.cwd(),this.file.destFile)
+                const destFile = this.file.destFile
                 let evalFun: any;
                 try {
                     evalFun = await import(destFile);
@@ -49,7 +49,7 @@ export module TemplateConfig {
             }
         }
 
-        async run(...args: any[]) : Promise<string>{
+        async run(args: any) : Promise<string>{
             const fun = await this.BuildRenderFunction()
             return fun(args);
         }
