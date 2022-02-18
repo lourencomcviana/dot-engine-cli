@@ -1,6 +1,6 @@
 
 import {RenderFunction, compile as dotCompile} from "dot";
-import {findAndReadFiles} from "./Glob";
+import {createDirectories, findAndReadFiles} from "./Glob";
 import * as fs from "fs-extra";
 import {TemplateConfig} from "../model/Template";
 import * as path from "path";
@@ -29,10 +29,10 @@ export async function readAndCompile(directory: string, options:  IOptions | Con
 
 export async function write(templateItem: TemplateConfig.TemplateItem) : Promise<void> {
     let fnStr = (await templateItem.BuildRenderFunction()).toString();
-    const fileName = path.parse(templateItem.File.destFile).name;
+    const fileName = path.parse(templateItem.file.destFile).name;
     fnStr = fnStr.replace(/function (\w+)/, `function ${fileName}`)
     fnStr += `module.exports=${fileName};`
-    await fs.writeFile(templateItem.File.destFile, fnStr);
+    await fs.writeFile(templateItem.file.destFile, fnStr);
 }
 
 export function parsedPathToString(parsedPath: ParsedPath) {
@@ -47,6 +47,31 @@ export async function run(config: Config.Main ) {
     const toWriteItens = templates.itens.map(item => write(item))
     await Promise.all(toWriteItens)
     return templates;
+
+}
+
+export async function executeTemplate(config: Config.Main, templates: TemplateConfig.Templates) {
+    const results = await Promise.all(templates.itens.map (item =>  item.run(config.data)));
+
+    const savePromisses =  results.map(async templateResult => {
+        const fileName =  await genFinalFilePath(config, templateResult);
+        createDirectories(path.parse(fileName).dir);
+        return fs.writeFile(fileName,templateResult.content)
+    })
+
+    await Promise.all(savePromisses);
+}
+
+function genFinalFilePath(config: Config.Main, templateResult: TemplateConfig.TemplateResult){
+    if (typeof config.name === 'function') {
+        const processName = config.name;
+        return processName(config, templateResult )
+    } else if(typeof config.name === 'string') {
+        return path.resolve(config.path.dir, config.name);
+    } else {
+        throw new Error('Type of naming function is not valid')
+    }
+
 
 }
 

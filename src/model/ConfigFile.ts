@@ -1,4 +1,5 @@
 import {ParsedPath} from "path";
+import { ProcessName} from "./ProcessMethod";
 
 export module Config{
     export interface Main {
@@ -6,7 +7,7 @@ export module Config{
         // pasta com os arquivos jst
         "jst": string;
         // nome final do arquivo processado
-        "name": string;
+        "name": string | ProcessName;
         // current directory evaluated at compile time
         "this": string;
         // parsed directory

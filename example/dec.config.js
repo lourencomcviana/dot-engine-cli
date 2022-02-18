@@ -1,7 +1,7 @@
 module.exports = {
     "outDir":"./dist",
     "jst":"./models/*.jst",
-    "name":"hello-world.html",
+    "name":"bin/hello-world.html",
     "data":{
         "name":"test"
     }

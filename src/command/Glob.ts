@@ -4,6 +4,7 @@ import * as fs from "fs-extra";
 import {FileConfig} from "../model/Template";
 import {Config} from "../model/ConfigFile";
 import isMain = Config.isMain;
+import path from "path";
 
 /***
  * get jst files
@@ -41,6 +42,25 @@ export async function readFiles(files: string[]): Promise<FileConfig.File[]> {
    return Promise.all(configs);
 }
 
+export function createDirectories(directory: string): void {
+    const sep = path.sep;
+    let dirParsed = directory.split(sep);
+
+    if(dirParsed[0]===""){
+        dirParsed[0]=sep;
+    }
+    let newDir = '';
+    dirParsed.forEach(node => {
+        if(newDir === '') {
+            newDir = node;
+        } else {
+            newDir = path.join(newDir, node);
+        }
+        if (!fs.existsSync(newDir)) {
+            fs.mkdirSync(newDir);
+        }
+    })
+}
 export async function findAndReadFiles(globPath: string, options:  IOptions | Config.Main = {}): Promise<FileConfig.GlobFile> {
     const files = await findFiles(globPath, options);
     return {

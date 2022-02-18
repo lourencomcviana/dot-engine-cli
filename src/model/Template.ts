@@ -1,14 +1,18 @@
 import {RenderFunction} from "dot";
 import * as path from "path";
 import {parsedPathToString} from "../command/DotCompiling"
-import {Config} from "./ConfigFile";
-import {config} from "yargs";
+
 
 
 export module TemplateConfig {
-    export class TemplateItem {
-        private readonly file: FileConfig.File & FileConfig.Destination;
-        private renderFunction: RenderFunction | undefined;
+    interface ITemplateItem {
+        readonly file: FileConfig.File & FileConfig.Destination;
+        readonly renderFunction?: RenderFunction;
+    }
+    export class TemplateItem implements ITemplateItem {
+        private readonly _file: FileConfig.File & FileConfig.Destination;
+        private _renderFunction: RenderFunction | undefined;
+
         constructor(
             file: FileConfig.File,
             renderFunction?: RenderFunction
@@ -19,17 +23,21 @@ export module TemplateConfig {
             const data:any = Object.assign({}, file);
             data.destFile = parsedPathToString(pathToFile);
 
-            this.file = data;
+            this._file = data;
             // ler arquivo do proccesso?
             if(!renderFunction) {
-                this.renderFunction = undefined;
+                this._renderFunction = undefined;
             } else {
-                this.renderFunction = renderFunction;
+                this._renderFunction = renderFunction;
             }
         }
 
-        get File() {
-            return this.file
+        get file() {
+            return this._file
+        }
+
+        get renderFunction() {
+            return this._renderFunction;
         }
 
         async BuildRenderFunction(): Promise<RenderFunction> {
@@ -44,17 +52,25 @@ export module TemplateConfig {
                     console.error(e);
                     process.exit(-1);
                 }
-                this.renderFunction = evalFun.default as RenderFunction;
-                return this.renderFunction ;
+                this._renderFunction = evalFun.default as RenderFunction;
+                return this._renderFunction ;
             }
         }
 
-        async run(args: any) : Promise<string>{
+        async run(args: any) : Promise<TemplateResult>{
             const fun = await this.BuildRenderFunction()
-            return fun(args);
+            const result = fun(args);
+            return {
+                content: result,
+                file: this.file,
+                renderFunction: fun
+            };
         }
     }
 
+    export interface TemplateResult extends ITemplateItem{
+        readonly content: string;
+    }
     export interface Templates extends FileConfig.Glob{
         itens: TemplateItem[]
     }

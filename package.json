@@ -2,9 +2,9 @@
   "name": "dot-engine-cli",
   "version": "1.0.0",
   "description": "",
-  "main": "./dist/index.js",
+  "main": "./dist/src/index.js",
   "bin": {
-    "dec": "./dist/index.js"
+    "dec": "./dist/src/index.js"
   },
   "scripts": {
     "test": "jest",
