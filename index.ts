@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 import yargs from "yargs";
 import loadConfigs from "./src/command/FindConfig";
-import {executeTemplate, run} from "./src/command/DotCompiling";
+import {executeTemplate, executeCompilation, readCompiled} from "./src/command/DotCompiling";
+import {read} from "fs-extra";
 
 
-yargs.scriptName('dec-cli')
+yargs.scriptName('dec')
     .usage('$0 <cmd> [args]')
     .command(
         'run [configuration]',
@@ -14,20 +15,55 @@ yargs.scriptName('dec-cli')
                     type: 'string',
                     describe: 'specify the configuration file dec-cli will run. Can be specified as a glob path',
                     default: '**/dec.config.js'
+                }).option('c', {
+                    type: 'boolean',
+                    describe: 'if should compile before running',
                 })
             },
         async function (argv) {
-                await execute(argv.configuration as string);
+                await execute(argv.configuration as string, !!argv.c);
             })
+    .command(
+        'compile [configuration]',
+        'compile a dec project',
+        (yargs) => {
+            yargs.positional('configuration', {
+                type: 'string',
+                describe: 'specify the configuration file dec-cli will run. Can be specified as a glob path',
+                default: '**/dec.config.js'
+            })
+        },
+        async function (argv) {
+            await compile(argv.configuration as string);
+        })
     .demandCommand()
     .showHelpOnFail(true)
     .help()
     .argv
 
-async function execute(globConfigPass:string) {
+async function execute(globConfigPass:string, shouldCompile:boolean) {
     const config = await loadConfigs(globConfigPass);
-
-    const templates = await run(config);
+    let templates;
+    if(shouldCompile) {
+        templates = await executeCompilation(config)
+    } else {
+        templates = await readCompiled(config);
+    }
     await executeTemplate(config,templates)
 
 }
+
+async function compile(globConfigPass:string) {
+    const config = await loadConfigs(globConfigPass);
+
+    return await executeCompilation(config);
+}
+
+//
+// return yargs.option('c', {
+//     type: 'string',
+//     describe: 'specify the configuration file. Can be specified as a glob path'
+// }).option('f', {
+//     type: 'string',
+//     describe: 'specify de templates glob path'
+// }).check(demandOneOfOption ('f', 'c'))

@@ -22,7 +22,7 @@ export async function findConfig(globConfigPass:string) {
                 name: filepath
             }
         })
-        const val = await inquirer
+        const saida =  await inquirer
             .prompt([
                 {
                     type: 'list',
@@ -30,11 +30,11 @@ export async function findConfig(globConfigPass:string) {
                     name: 'config',
                     choices: [
                         new inquirer.Separator(' = Files = '),
-                        ... choises
+                        ...choises
                     ]
                 }
-            ])
-        return val;
+            ]);
+        return saida.config;
     } else if(configs.length === 1 ) {
         return configs[0]
     } else {
