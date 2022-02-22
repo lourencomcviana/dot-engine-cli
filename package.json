@@ -10,7 +10,7 @@
     "test": "jest",
     "build": "tsc",
     "rimraf": "./node_modules/rimraf/bin.js",
-    "clean" : "rimraf dist/",
+    "clean": "rimraf dist/",
     "link": "npm link",
     "prepare": "husky install",
     "cz": "git-cz"
@@ -45,6 +45,7 @@
     "glob": "^7.2.0",
     "glob-promise": "^4.2.2",
     "inquirer": "^8.2.0",
+    "module-alias": "^2.2.2",
     "yamljs": "^0.3.0",
     "yargs": "^17.3.1"
   },
@@ -52,5 +53,9 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "_moduleAliases": {
+    "@modules": "dist/src/rest/modules",
+    "@app": "dist/src"
   }
 }

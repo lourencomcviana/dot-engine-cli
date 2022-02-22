@@ -35,7 +35,7 @@ export function parsedPathToString(parsedPath: ParsedPath) {
     return parsedPath.dir.startsWith(".") ? `.${path.sep}${newPath}` : newPath
 }
 
-async function  genFinalFilePath(config: Config.Main, templateResult: TemplateConfig.TemplateResult): Promise<string>{
+export async function  genFinalFilePath(config: Config.Main, templateResult: TemplateConfig.TemplateResult): Promise<string>{
     if (typeof config.name === 'function') {
         const processName = config.name;
         return processName(config, templateResult )
