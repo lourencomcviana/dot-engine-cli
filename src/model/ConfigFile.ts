@@ -9,6 +9,7 @@ export module Config{
         "jst": string;
         // nome final do arquivo processado
         "name": string | ProcessName;
+
         // current directory evaluated at compile time
         "this": string;
         // parsed directory
@@ -16,6 +17,8 @@ export module Config{
         // dados a serem enviados para o template
         data: object;
         dot?: TemplateSettings;
+        // em vez de sobreescrever, adiciona no arquivo
+        sameFileAppend?: boolean;
         process: Process[]
     }
 

@@ -9,6 +9,7 @@ function mockConfig(): Config.Main {
         "outDir":"./dist",
         "jst":"./models/*.jst",
         "name":"bin/hello-world.html",
+        sameFileAppend: true,
         "data":{
             "name":"test"
         },

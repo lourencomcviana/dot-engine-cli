@@ -26,7 +26,11 @@ export async function executeTemplate(config: Config.Main, templates: TemplateCo
     const savePromisses =  results.map(async templateResult => {
         const fileName =  await genFinalFilePath(config, templateResult);
         createDirectories(path.parse(fileName).dir);
-        return fs.writeFile(fileName,templateResult.content)
+        if(config.sameFileAppend) {
+            return fs.appendFile(fileName,templateResult.content)
+        } else {
+            return fs.writeFile(fileName,templateResult.content)
+        }
     })
 
     await Promise.all(savePromisses);
