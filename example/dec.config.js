@@ -4,5 +4,8 @@ module.exports = {
     "name":"bin/hello-world.html",
     "data":{
         "name":"test"
+    },
+    "dot": {
+        "strip": false
     }
 }

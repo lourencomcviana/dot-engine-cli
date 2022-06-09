@@ -1,5 +1,6 @@
 import {ParsedPath} from "path";
 import { ProcessName} from "./ProcessMethod";
+import {TemplateSettings} from "dot";
 
 export module Config{
     export interface Main {
@@ -14,6 +15,7 @@ export module Config{
         "path": ParsedPath,
         // dados a serem enviados para o template
         data: object;
+        dot?: TemplateSettings;
         process: Process[]
     }
 

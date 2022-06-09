@@ -1,5 +1,6 @@
 
-import {RenderFunction, compile as dotCompile} from "dot";
+import {RenderFunction, templateSettings as dotSettings, template as dotTemplate, TemplateSettings} from "dot";
+
 import {createDirectories, findAndReadFiles} from "./Glob";
 import * as fs from "fs-extra";
 import {TemplateConfig} from "../model/Template";
@@ -7,6 +8,7 @@ import * as path from "path";
 import {ParsedPath} from "path";
 import {Config} from "../model/ConfigFile";
 import {IOptions} from "glob";
+import isMain = Config.isMain;
 
 export async function executeCompilation(config: Config.Main ) {
 
@@ -68,7 +70,7 @@ export async function readCompiled(config: Config.Main) : Promise<TemplateConfig
 async function readAndCompile(directory: string, options:  IOptions | Config.Main) : Promise<TemplateConfig.Templates> {
     const filesContents = await findAndReadFiles(directory, options);
     const itens = filesContents.found.map( fileContent => {
-        const templateFn = compile(fileContent.content);
+        const templateFn = compile(fileContent.content, options);
         return new TemplateConfig.TemplateItem(fileContent, templateFn);
     });
 
@@ -87,12 +89,15 @@ async function write(templateItem: TemplateConfig.TemplateItem) : Promise<void> 
     await fs.writeFile(templateItem.file.destFile, fnStr);
 }
 
-function compile(template: string): RenderFunction{
-    const templateSettings = {
-        strip: true,
-        selfcontained:false,
-    };
+function compile(template: string, options: IOptions | Config.Main): RenderFunction{
+    let userTemplateSettings:any = {}
+    if(isMain(options)) {
+        userTemplateSettings =  (options as Config.Main).dot
+    }
+    const defaultTemplateSettings : TemplateSettings  = dotSettings;
 
-    return dotCompile(template, {templateSettings})
+    const newTemplateSettings = Object.assign(defaultTemplateSettings,userTemplateSettings)
+
+    return dotTemplate(template, newTemplateSettings);
 }
 
